@@ -26,7 +26,7 @@ async def createTask(chatroom_id : str, query : str):
 
 # Task의 answer 리스트 안에 응답 추가하기
 @router.post("/answer")
-async def addAnswer(chatroom_id : str, task_id : str, new_answer : str, finish : bool):    # finish는 마지막 answer인지를 의미
+async def addAnswer(chatroom_id : str, task_id : str, new_answer : str, finish : bool = False):    # finish는 마지막 answer인지를 의미
     task = get_existing_task(task_id, client=client)   # 고유 ID로 task 조회
     if not task:
         raise HTTPException(status_code=404, detail="Task Not Found") # '응답 없음'을 출력

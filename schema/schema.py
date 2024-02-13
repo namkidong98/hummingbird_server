@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import datetime
 from enum import Enum
+from typing import Literal
 
 class QnA(BaseModel):   # 페르소나에 사용되는 질문-대답 묶음
     question : str      # 페르소나 질문
@@ -32,10 +33,10 @@ class Task(BaseModel):          # 발화에 대해 생성된 응답, 합성된 �
 
 class User(BaseModel):
     _id : str
-    name : str
-    birth : str
-    sex : str
-    phone : str
+    name : str = Field(..., min_length=2, max_length=4, example="남기동")
+    birth : str = Field(..., min_length=6, max_length=6, example="981229")
+    sex : Literal["male", "female"]
+    phone: str = Field(..., regex=r'^010-[0-9]{3,4}-[0-9]{4}$', example="010-2761-3934")
     friend : list[str] = []      # user_id의 리스트
     voice : Voice | None = None  # 유저가 저장한 본인 목소리
     persona : list[QnA] = []     # 유저의 페르소나 생성에 사용된 응답 모음
