@@ -3,10 +3,10 @@ from starlette import status
 
 import sys, json
 sys.path.append('../')
-from database import db_connect
-from schemas.schema import Message
-from CRUD.message_crud import get_message
-from CRUD.chatroom_crud import get_chatroom_by_id
+from database.database import db_connect
+from schema.schema import Message
+from crud.message_crud import get_message
+from crud.chatroom_crud import get_chatroom_by_id
 
 router = APIRouter(
     prefix = "/api/user/message",

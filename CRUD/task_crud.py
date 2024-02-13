@@ -1,6 +1,6 @@
 import sys, json
 sys.path.append('../')
-from schemas.schema import Task, TaskStatusEnum
+from schema.schema import Task, TaskStatusEnum
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId

@@ -1,6 +1,6 @@
 import sys, json
 sys.path.append('../')
-from schemas.schema import ChatRoom
+from schema.schema import ChatRoom
 
 from pymongo import MongoClient
 from bson import ObjectId

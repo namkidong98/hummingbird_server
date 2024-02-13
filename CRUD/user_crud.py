@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from schemas.schema import User
+from schema.schema import User
 from pymongo import MongoClient
 import json
 from bson import ObjectId

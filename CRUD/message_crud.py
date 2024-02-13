@@ -1,7 +1,7 @@
 import sys, json
 sys.path.append('../')
-from schemas.schema import Task, TaskStatusEnum
-from CRUD.task_crud import get_existing_task
+from schema.schema import Task, TaskStatusEnum
+from crud.task_crud import get_existing_task
 
 from pymongo import MongoClient
 from datetime import datetime

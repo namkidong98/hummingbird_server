@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException
 
 import sys, json
 sys.path.append('../')
-from CRUD.user_crud import get_user
-from CRUD.chatroom_crud import get_chatroom_by_user, create_chatroom, get_chatroom_by_id
-from CRUD.message_crud import get_message
-from database import db_connect
+from crud.user_crud import get_user
+from crud.chatroom_crud import get_chatroom_by_user, create_chatroom, get_chatroom_by_id
+from crud.message_crud import get_message
+from database.database import db_connect
 
 router = APIRouter(
     prefix = "/api/user/chatroom",

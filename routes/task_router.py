@@ -3,11 +3,11 @@ from starlette import status
 
 import sys
 sys.path.append('../')
-from database import db_connect
-from schemas.schema import TaskStatusEnum
-from CRUD.task_crud import (get_existing_task, create_new_task, add_answer, update_task_status,)
-from CRUD.message_crud import create_message
-from CRUD.chatroom_crud import update_dialogue
+from database.database import db_connect
+from schema.schema import TaskStatusEnum
+from crud.task_crud import (get_existing_task, create_new_task, add_answer, update_task_status,)
+from crud.message_crud import create_message
+from crud.chatroom_crud import update_dialogue
 
 router = APIRouter(
     prefix = "/api/user/task",

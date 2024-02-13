@@ -33,7 +33,8 @@ class Task(BaseModel):          # 발화에 대해 생성된 응답, 합성된 �
 class User(BaseModel):
     _id : str
     name : str
-#    birth : str
+    birth : str
+    sex : str
     phone : str
     friend : list[str] = []      # user_id의 리스트
     voice : Voice | None = None  # 유저가 저장한 본인 목소리

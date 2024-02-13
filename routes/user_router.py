@@ -3,9 +3,9 @@ from starlette import status
 
 import sys, json
 sys.path.append('../')
-from database import db_connect
-from schemas.schema import User
-from CRUD.user_crud import (get_user_list, create_user,
+from database.database import db_connect
+from schema.schema import User
+from crud.user_crud import (get_user_list, create_user,
                             get_existing_user, update_user,
                             drop_user, get_user)
 
