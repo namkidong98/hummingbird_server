@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from schema.schema import User
+from schema.schema import User, UserCreate
 from pymongo import MongoClient
 import json
 from bson import ObjectId
@@ -16,22 +16,24 @@ def get_user_list(client : MongoClient):
     return user_list
 
 # User 생성하기
-def create_user(user_create : User, client : MongoClient):
+def create_user(user_create : UserCreate, client : MongoClient):
     db = client[DB_NAME]["User"]
-    new_user = {   # User 객체를 dict로 변환
+    new_user = {   # UserCreate 부분은 그대로 설정, 나머지는 초기 값으로 설정
         "name": user_create.name,
+        "birth" : user_create.birth,
+        "sex" : user_create.sex,
         "phone": user_create.phone,
-        "friend": user_create.friend,  # 일단 빈 리스트로 생성
-        "voice": None,
-        "persona": []
+        "friend" : [],
+        "voice" : None,
+        "persona" : [],
     }
     db.insert_one(new_user)
 
 # 기존의 유저가 있는지 검사
-def get_existing_user(user : User, client : MongoClient):
+def get_existing_user(user : UserCreate, client : MongoClient):
     db = client[DB_NAME]["User"]
-    return db.find_one({'phone' : user.phone,   # 동일한 전화번호와
-                        'name'  : user.name})   # 동일한 이름을 가진 document를 반환(없으면 None)
+    return db.find_one({'name' : user.name,   # 동일한 이름
+                        'birth': user.birth}) # 동일한 생년월일을 가진 document를 반환(없으면 None)
 
 # user_id를 받아서 User 조회
 def get_user(user_id : str, client : MongoClient):

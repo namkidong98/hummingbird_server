@@ -33,6 +33,23 @@ def add_answer(task_id : str, new_answer : str, client : MongoClient):
     task_db = client[DB_NAME]["Task"]
     task_db.update_one({"_id": ObjectId(task_id)}, {"$push": {"answer": new_answer}})
 
+# DB 안의 Task의 status를 수정
 def update_task_status(task_id : str, status : str, client : MongoClient):
     task_db = client[DB_NAME]["Task"]
     task_db.update_one({"_id": ObjectId(task_id)}, {"$set": {"task_status": status}})
+
+# # Task의 answer 리스트 안에 응답 추가하기
+# def AnswertoTask(chatroom_id : str, task_id : str, new_answer : str, finish: bool = False):
+#     task = get_existing_task(answer.task_id, client=client)   # 고유 ID로 task 조회
+#     if not task:
+#         raise HTTPException(status_code=404, detail="Task Not Found") # '응답 없음'을 출력
+    
+#     # 상태를 확인하고 필요하면 변경
+#     if task['task_status'] == "todo": # 초기 상태이면,
+#         update_task_status(task_id=task_id, status=TaskStatusEnum.doing, client=client) # doing으로 변경
+#     add_answer(task_id=task_id, new_answer=new_answer, client=client)
+
+#     if answer.finish:  # 만약, 마지막 answer 문장이었다면
+#         update_task_status(task_id=answer.task_id, status=TaskStatusEnum.done, client=client) # done으로 바꾸고
+#         message_id = create_message(task_id=answer.task_id, client=client) # 완성된 task의 정보를 기반으로 새로운 Message 만들기
+#         update_dialogue(chatroom_id=answer.chatroom_id, message_id=message_id, client=client) # 생성된 Message의 id를 chatroom의 dialogue에 저장
