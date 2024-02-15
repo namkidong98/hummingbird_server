@@ -4,7 +4,7 @@ from bson import ObjectId
 from dotenv import load_dotenv
 from functools import partial
 
-import sys, os,json
+import sys, os, json, asyncio
 sys.path.append('../')
 from schema.schema import Task, TaskStatusEnum
 from crud.message_crud import create_message
@@ -28,7 +28,7 @@ def get_existing_task(task_id : str, client : MongoClient):
     task = task_db.find_one({"_id" : ObjectId(task_id)})   # 고유 ID로 message를 찾음
     return task
 
-# 새로운 Task 만들기
+# 새로운 Task 만들기(반환되는 task_id를 Front에서 status를 체크할 때 사용)
 def create_new_task(chatroom_id : str, query : str, client: MongoClient, manager : ChromaManager):
     task_db = client[DB_NAME]["Task"]
     new_task = {
@@ -40,14 +40,11 @@ def create_new_task(chatroom_id : str, query : str, client: MongoClient, manager
         "date" : datetime.now()                 # 발화가 들어온 로컬 시간
     }
     new_task_id = task_db.insert_one(new_task).inserted_id # DB에 넣고 id를 저장
-
-    # 채팅을 나누는 friend_id를 조회해서 start_chatbot의 인자로 넣고 실행시킨 후
+    
     chatroom = get_chatroom_by_id(chatroom_id=chatroom_id, client=client) # chatroom_id로 chatroom을 가져오고
     friend_id = chatroom['friend_id']                         # friend_id를 뽑아서
-    start_chatbot(friend_id=friend_id, task_id=new_task_id, client=client, manager=manager)  # 답변 생성하는 chatbot 시작시키기
 
-    # task_id 반환 --> Front로 전달될 예정(해당 task_id로 status 체크할 때 사용)
-    return json.loads(json.dumps(new_task_id, default=str)) 
+    return str(new_task_id), friend_id                     
 
 # 새로운 응답이 생성되면 task의 answer 리스트에 추가
 def add_answer(task_id : str, new_answer : str, client : MongoClient):
@@ -77,7 +74,8 @@ def on_llm_end_handler(result, task_id : str, chatroom_id : str, client : MongoC
     update_dialogue(chatroom_id=chatroom_id, message_id=message_id, client=client) # 새로운 Message의 ID를 dialogue에 추가
     
 
-def start_chatbot(friend_id : str, task_id : str, client : MongoClient, manager : ChromaManager):
+# 비동기 함수로 설정
+async def start_chatbot(friend_id : str, task_id : str, client : MongoClient, manager : ChromaManager):
     task_db = client[DB_NAME]["Task"]
     task = task_db.find_one({"_id" : ObjectId(task_id)})
     chatroom = get_chatroom_by_id(chatroom_id=task['chatroom_id'], client=client)
