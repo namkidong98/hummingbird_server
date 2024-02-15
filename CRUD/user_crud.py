@@ -1,8 +1,8 @@
-import sys
+import sys, json
 sys.path.append('../')
 from schema.schema import User, UserCreate
 from pymongo import MongoClient
-import json
+from chat_hummingbird.vectordb.chroma_manager import ChromaManager
 from bson import ObjectId
 
 DB_NAME = 'hummingbird'
@@ -57,3 +57,23 @@ def drop_user(client : MongoClient, all : bool, name : str, phone : str):
     else:
         db.delete_one(query)
 
+# User 페르소나 추가하기
+def add_persona(user_id : str, title : str, content : str, client : MongoClient, manager : ChromaManager):
+    db = client[DB_NAME]["User"]    # MongoDB
+
+    # Mongo DB에 persona(딕셔너리)에 추가 or 업데이트
+    key = "persona." + title
+    db.update_one({"_id": ObjectId(user_id)}, {"$set": {key: content}})
+
+    # Chroma DB에 persona 제거하고 다시 추가하기
+    user = db.find_one({"_id" : ObjectId(user_id)}) # 수정된 이후의 정보로 가져옴
+    manager.delete_personas_by_user_id(user_id=user_id) # Chroma 내 기존의 페르소나는 지우고
+    script = ""
+    for key, value in user['persona'].items():
+        script += (key + "에는 " + value + " ")
+    result = manager.add_persona(persona=script, user_id=user_id) # MongoDB의 페르소나를 합쳐서 Chroma에 추가
+    
+    
+        
+
+    

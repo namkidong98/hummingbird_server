@@ -1,7 +1,6 @@
 import sys, json
 sys.path.append('../')
 from schema.schema import Task, TaskStatusEnum
-from crud.task_crud import get_existing_task
 
 from pymongo import MongoClient
 from datetime import datetime
@@ -12,8 +11,9 @@ DB_NAME = 'hummingbird'
 # Task가 끝나면("done") Task의 정보로 Message를 만들고 만들어진 Message의 id를 반환
 def create_message(task_id : str, client : MongoClient):
     message_db = client[DB_NAME]["Message"]
-
-    task = get_existing_task(task_id=task_id, client=client) # task_id로 task 가져오고
+    task_db = client[DB_NAME]["Task"]
+    task = task_db.find_one({"_id" : ObjectId(task_id)})
+    # task = get_existing_task(task_id=task_id, client=client) # task_id로 task 가져오고
     # task의 정보를 바탕으로 Message 만들기
     new_message = {
         "query" : task['query'],

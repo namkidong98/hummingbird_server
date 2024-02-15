@@ -4,6 +4,7 @@ from schema.schema import ChatRoom
 
 from pymongo import MongoClient
 from bson import ObjectId
+from typing import Optional
 
 DB_NAME = 'hummingbird'
 
@@ -35,5 +36,8 @@ def create_chatroom(user_id : str, friend_id : str, client : MongoClient):
 def update_dialogue(chatroom_id : str, message_id : str, client : MongoClient):
     chatroom_db = client[DB_NAME]["ChatRoom"]
     chatroom_db.update_one({"_id": ObjectId(chatroom_id)}, {"$push": {"dialogue": message_id}})
-
-
+    
+# chatroom의 summary를 새로 생성된 summary로 대체
+def update_summary(chatroom_id : str, client : MongoClient, summary : Optional[str] = None):
+    chatroom_db = client[DB_NAME]["ChatRoom"]
+    chatroom_db.update_one({"_id": ObjectId(chatroom_id)}, {"$set": {"summary": summary}})

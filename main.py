@@ -20,7 +20,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_db_client():
     app.client = db_connect()       # MongoDB 연결
-    app.vector = vector_connect()   # ChromaDB 연결(vector search를 위해)
+    app.manager = vector_connect()   # ChromaDB 연결(vector search를 위해)
 
 @app.on_event("shutdown")
 def shutdown_db_client():

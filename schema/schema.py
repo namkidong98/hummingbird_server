@@ -3,19 +3,22 @@ import datetime
 from enum import Enum
 from typing import Literal, Optional
 
+##---------- 미정 ------------##
 class QnA(BaseModel):   # 페르소나에 사용되는 질문-대답 묶음
     question : str      # 페르소나 질문
     answer : str        # 페르소나 질문에 대한 응답
+
+class Voice(BaseModel): # 페르소나를 위한 개인 음성, 대화에서 생성된 음성 등 모든 음성들에 대한 스키마
+    _id : str
+    audio : bytes       # Binary로 변환된 음성 데이터(인코딩)
+##---------------------------##
+
 
 class Message(BaseModel):       # 채팅방의 발화-응답 묶음(Task가 끝나면 만듦)
     _id : str  
     query : str                 # 발화
     answer : list[str]          # 발화에 대한 응답
     date : datetime.datetime    # 발화가 된 시간
-
-class Voice(BaseModel): # 페르소나를 위한 개인 음성, 대화에서 생성된 음성 등 모든 음성들에 대한 스키마
-    _id : str
-    audio : bytes       # Binary로 변환된 음성 데이터(인코딩)
 
 class ChatRoom(BaseModel):
     _id : str
@@ -42,12 +45,6 @@ class Task(BaseModel):          # 발화에 대해 생성된 응답, 합성된 �
 class TaskCreate(BaseModel):
     chatroom_id : str
     query : str
-
-class AnswertoTask(BaseModel):
-    chatroom_id : str
-    task_id : str
-    new_answer : str
-    finish : bool = False
 ##----------------------------------------------##  
 
 
@@ -58,6 +55,11 @@ class UserCreate(BaseModel):
     sex : Literal["male", "female"]
     phone: str = Field(..., pattern=r'^010-[0-9]{3,4}-[0-9]{4}$', example="010-2761-3934")
 
+class UpdatePersona(BaseModel):
+    user_id : str   # 페르소나를 업데이트할 유저의 ID
+    title : str     # 페르소나 질문 - Key       --> 추후에 Literal 이나 Union으로 항목 고정
+    content : str   # 페르소나 대답 - Value 
+
 class User(BaseModel):
     _id : str
     name : str = Field(..., min_length=2, max_length=4)
@@ -66,5 +68,5 @@ class User(BaseModel):
     phone: str = Field(..., pattern=r'^010-[0-9]{3,4}-[0-9]{4}$')
     friend : list[str] = []         # user_id의 리스트
     voice : Optional[Voice] = None  # 유저가 저장한 본인 목소리
-    persona : list[str] = []        # 유저의 페르소나 생성에 사용된 응답 모음
+    persona : dict = {}             # 유저의 페르소나 생성에 사용된 응답 모음
 ##----------------------------------------------##  
