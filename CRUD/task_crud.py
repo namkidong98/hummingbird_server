@@ -1,24 +1,16 @@
 from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
-from dotenv import load_dotenv
 from functools import partial
 
-import sys, os, json, asyncio
+import sys, os, json, time
 sys.path.append('../')
 from schema.schema import Task, TaskStatusEnum
 from crud.message_crud import create_message
 from crud.chatroom_crud import get_chatroom_by_id, update_dialogue, update_summary
 
-from chat_hummingbird.chatbot import Chatbot
-from chat_hummingbird.generator.openai import OpenAIGenerator
-from chat_hummingbird.summarizer.summarizer import Summarizer
 from chat_hummingbird.vectordb.chroma_manager import ChromaManager
-
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPEN_API_KEY")
-GENERATOR_MODEL = os.getenv("GENERATOR_MODEL")
-SUMMARIZER_MODEL = os.getenv("SUMMARIZER_MODEL") 
+from chat_hummingbird.chatbot import Chatbot
 
 DB_NAME = 'hummingbird'
 
@@ -72,18 +64,13 @@ def on_llm_end_handler(result, task_id : str, chatroom_id : str, client : MongoC
     update_task_status(task_id=task_id, status=TaskStatusEnum.done, client=client) # done으로 바꾸고
     message_id = create_message(task_id=task_id, client=client)                    # 완성된 task의 정보를 기반으로 새로운 Message 만들기
     update_dialogue(chatroom_id=chatroom_id, message_id=message_id, client=client) # 새로운 Message의 ID를 dialogue에 추가
-    
 
 # 비동기 함수로 설정
-async def start_chatbot(friend_id : str, task_id : str, client : MongoClient, manager : ChromaManager):
+def start_chatbot(friend_id : str, task_id : str,
+                        client : MongoClient, chatbot : Chatbot): # 
     task_db = client[DB_NAME]["Task"]
     task = task_db.find_one({"_id" : ObjectId(task_id)})
     chatroom = get_chatroom_by_id(chatroom_id=task['chatroom_id'], client=client)
-    
-    # 이 부분을 main에서 맨 처음 호출하고 request로 넘겨줘야 할까? (resource 낭비?)
-    generator = OpenAIGenerator(model_name=GENERATOR_MODEL, openai_api_key=OPENAI_API_KEY)
-    summarizer = Summarizer(model_name=SUMMARIZER_MODEL)
-    chatbot = Chatbot(generator=generator, summarizor=summarizer, db_manager=manager)
 
     new_sentence_handler = partial(on_llm_new_sentence_handler,
                                           task_id=task_id, client=client)

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
 from starlette import status
 
-import sys, asyncio
+import sys, asyncio, time
 sys.path.append('../')
 from schema.schema import Task, TaskStatusEnum, TaskCreate
 from crud.task_crud import get_existing_task, create_new_task, start_chatbot
+from pymongo import MongoClient
 
 router = APIRouter(
     prefix = "/api/user/task",
@@ -12,14 +13,14 @@ router = APIRouter(
 
 # 어떤 채팅방(chatroom_id)에서 나온 발화(query)인지를 받아서 Task 만들기(Front와 통신)
 @router.post("/create")
-async def createTask(request : Request, task: TaskCreate):
+async def createTask(request : Request, task: TaskCreate, background_tasks: BackgroundTasks):
     task_id, friend_id = create_new_task(chatroom_id=task.chatroom_id, query=task.query,
                               client=request.app.client, manager=request.app.manager)
     
     # start_chatbot을 백그라운드에서 실행
-    asyncio.create_task(start_chatbot(friend_id=friend_id, task_id=task_id,
-                                      client=request.app.client, manager=request.app.manager,
-                                      ))
+    background_tasks.add_task(start_chatbot,
+                              friend_id=friend_id, task_id=task_id,
+                              client=request.app.client, chatbot=request.app.chatbot) # 
     return task_id
 
 # 생성된 task의 id를 지속적으로 보내면서 상태를 확인(Front와 통신)
