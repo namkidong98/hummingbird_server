@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Request
 import sys, json
 sys.path.append('../')
 from crud.user_crud import get_user

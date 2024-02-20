@@ -36,7 +36,7 @@ def startup_db_client():
 
     app.generator = OpenAIGenerator(model_name=GENERATOR_MODEL, openai_api_key=OPENAI_API_KEY)
     app.summarizer = Summarizer(model_name=SUMMARIZER_MODEL)
-    app.chatbot = chatbot = Chatbot(generator=app.generator, summarizor=app.summarizer, db_manager=app.manager)
+    app.chatbot = Chatbot(generator=app.generator, summarizer=app.summarizer, db_manager=app.manager)
 
 @app.on_event("shutdown")
 def shutdown_db_client():

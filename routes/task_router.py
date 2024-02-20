@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Request, BackgroundTasks, Response
 from starlette import status
 
-import sys, asyncio, time
+import sys
 sys.path.append('../')
 from schema.schema import Task, TaskStatusEnum, TaskCreate
-from crud.task_crud import get_existing_task, create_new_task, start_chatbot
-from pymongo import MongoClient
+from crud.task_crud import get_existing_task, create_new_task, start_chatbot, test_start_chatbot, send_binary_voice
 
 router = APIRouter(
     prefix = "/api/user/task",
@@ -15,7 +14,7 @@ router = APIRouter(
 @router.post("/create")
 async def createTask(request : Request, task: TaskCreate, background_tasks: BackgroundTasks):
     task_id, friend_id = create_new_task(chatroom_id=task.chatroom_id, query=task.query,
-                              client=request.app.client, manager=request.app.manager)
+                              client=request.app.client)
     
     # start_chatbot을 백그라운드에서 실행
     background_tasks.add_task(start_chatbot,
@@ -40,4 +39,25 @@ async def sendAnswer(request : Request, task_id : str, index : int):
         raise HTTPException(status_code=404, detail="Task Not Found") # '응답 없음'을 출력
     if (index-1 >= len(task['answer'])) or (index <= 0): # 잘못된 index 값이 들어오면
         raise HTTPException(status_code=404, detail="Invalid Index for Answer")
-    return task['answer'][index-1]
+    
+    # voice_id = task['voice'][index-1]
+    # voice_id로 DB에서 binary file을 가져오는 함수 --> 가져온 binary file을 return
+
+    return task['answer'][index-1] 
+
+##------- TEST -------##
+@router.post("/test/create")
+async def createTask_Test(request : Request, task: TaskCreate, background_tasks: BackgroundTasks):
+    task_id, friend_id = create_new_task(chatroom_id=task.chatroom_id, query=task.query,
+                              client=request.app.client)
+    
+    # start_chatbot을 백그라운드에서 실행
+    background_tasks.add_task(test_start_chatbot,
+                              friend_id=friend_id, task_id=task_id,
+                              client=request.app.client, chatbot=request.app.chatbot)
+    return task_id
+
+@router.get("/test/voice")
+async def playVoice_Test(request: Request, voice_id: str):
+    binary_data = send_binary_voice(voice_id=voice_id, client=request.app.client)
+    return Response(content=binary_data, media_type="audio/wav")
