@@ -42,8 +42,10 @@ async def sendAnswer(request : Request, task_id : str, index : int):
         raise HTTPException(status_code=404, detail="Invalid Index for Answer")
     
     # voice 생성까지 대기
-    while len(task['voice']) <= index-1:
-        pass
+    while True:
+        task = get_existing_task(task_id, client=request.app.client)
+        if len(task['voice']) >= index:
+            break
     voice_id = task['voice'][index-1]
     
     # voice_id로 DB에서 binary file을 가져오는 함수 --> 가져온 binary file을 return
