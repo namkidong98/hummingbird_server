@@ -7,7 +7,7 @@ sys.path.append('../')
 from schema.schema import User, UserCreate, UpdatePersona
 from crud.user_crud import (get_user_list, create_user,
                             get_existing_user, update_user,
-                            drop_user, get_user, add_persona)
+                            drop_user, get_user, add_persona, get_persona)
 
 router = APIRouter(
     prefix = "/api/user",
@@ -58,9 +58,15 @@ async def get_friend_list(request : Request, user_id : str):
         result.append(json.loads(json.dumps(doc, default=str))) # json 형식으로 변환해서 리스트에 추가
     return sorted(result, key=lambda x: x['name'])  # 각각의 User 데이터의 이름(name) 순서로 정렬해서 반환
 
+# User_id로 해당 유저의 페르소나 가져오기
+@router.get("/persona")
+async def get_user_persona(request : Request, user_id : str):
+    persona = get_persona(user_id=user_id, client=request.app.client)
+    return persona
+
 # Persona 수정하기
 @router.post("/persona")
-async def user_update(request : Request, update_persona : UpdatePersona):
+async def update_user_persona(request : Request, update_persona : UpdatePersona):
     user = get_user(user_id = update_persona.user_id, client=request.app.client)
     if not user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,   # 에러 메시지 출력

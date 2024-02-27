@@ -3,7 +3,7 @@ from datetime import datetime
 from bson import ObjectId
 from functools import partial
 
-import sys, base64
+import sys, base64, re
 sys.path.append('../')
 from schema.schema import TaskStatusEnum
 from crud.message_crud import create_message, get_message
@@ -82,6 +82,15 @@ def voice_model(sentence : str):
     audio_bytes = tts.generate(text=text)
     return audio_bytes
 
+def preprocessing_sentence(sentence : str):
+    pattern1 = re.compile(r'[가-힣]{3}:')
+    pattern2 = re.compile(r"[가-힣]{3} :")
+    pattern3 = re.compile(r"바라")
+    new_sentence = re.sub(pattern1, "", sentence)
+    new_sentence = re.sub(pattern2, "", new_sentence)
+    new_sentence = re.sub(pattern3, "바래", new_sentence)
+    return new_sentence
+
 # 한 문장 생성될 때마다 호출
 def on_llm_new_sentence_handler(sentence, task_id : str, client : MongoClient): 
     print(f"setence compelete! : {sentence}")
@@ -93,6 +102,7 @@ def on_llm_new_sentence_handler(sentence, task_id : str, client : MongoClient):
     if task['task_status'] == "todo": 
         update_task_status(task_id=task_id, status=TaskStatusEnum.doing, client=client) 
     
+    sentence = preprocessing_sentence(sentence=sentence)
     # 생성된 응답을 DB(Task)에 저장
     add_answer(task_id=task_id, new_answer=sentence, client=client)
 
@@ -144,7 +154,7 @@ def start_chatbot(friend_id : str, task_id : str,
         ai_name = ai_name,
         query = task['query'],  # 새로운 Task에서 들어온 발화
         user_id = friend_id,    # 발화에 대답할 친구의 ID
-        relation="친구",
+        relation="서로 반말을 쓸 정도로 사이좋은 딸",
         summary = chatroom['summary'],         # 그동안 나눈 대화의 summary(기존 summary)
         history = history,
         on_llm_new_sentence_handler = new_sentence_handler, # 문장 생성될 때마다 호출되는 함수

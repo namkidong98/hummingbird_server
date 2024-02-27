@@ -31,6 +31,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_db_client():
+    print("MODEL_NAME:", GENERATOR_MODEL)
     app.client = db_connect()       # MongoDB 연결
     app.manager = vector_connect()   # ChromaDB 연결(vector search를 위해)
 

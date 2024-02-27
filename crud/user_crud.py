@@ -25,7 +25,7 @@ def create_user(user_create : UserCreate, client : MongoClient):
         "phone": user_create.phone,
         "friend" : [],
         "voice" : None,
-        "persona" : [],
+        "persona" : {},
     }
     db.insert_one(new_user)
 
@@ -56,6 +56,13 @@ def drop_user(client : MongoClient, all : bool, name : str, phone : str):
         db.delete_many({})    # all=True이면 name, phone가 무관하게 DB에 User 모두 삭제
     else:
         db.delete_one(query)
+
+# User 페르소나 불러오기
+def get_persona(user_id : str, client : MongoClient):
+    db = client[DB_NAME]["User"]
+    user = db.find_one({"_id" : ObjectId(user_id)})
+    return json.loads(json.dumps(user['persona'], default=str))
+
 
 # User 페르소나 추가하기
 def add_persona(user_id : str, title : str, content : str, client : MongoClient, manager : ChromaManager):
