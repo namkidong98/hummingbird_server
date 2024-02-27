@@ -6,6 +6,7 @@ from database.database import db_connect, vector_connect
 from chat_hummingbird.chatbot import Chatbot
 from chat_hummingbird.generator.openai import OpenAIGenerator
 from chat_hummingbird.summarizer.summarizer import Summarizer
+from FlyAIVoice.VoiceModule import TTS
 from dotenv import load_dotenv
 import os
 
@@ -38,6 +39,8 @@ def startup_db_client():
     app.generator = OpenAIGenerator(model_name=GENERATOR_MODEL, openai_api_key=OPENAI_API_KEY)
     app.summarizer = Summarizer(model_name=SUMMARIZER_MODEL)
     app.chatbot = Chatbot(generator=app.generator, summarizer=app.summarizer, db_manager=app.manager)
+    app.tts = TTS(model_dir="./FlyAIVoice/model/G_latest.pth",
+                  config_dir="./FlyAIVoice/finetune_speaker.json")
 
 @app.on_event("shutdown")
 def shutdown_db_client():

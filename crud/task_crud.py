@@ -70,15 +70,10 @@ def create_new_voice(task_id : str, audio : bytes, client: MongoClient):
     task_db.update_one({"_id": ObjectId(task_id)}, {"$push": {"voice": str(new_voice_id)}})    
 
 # Voice 생성 모델(Input : 생성된 텍스트 / Output : 텍스트로 생성한 음성의 bytes)
-def voice_model(sentence : str):
-    tts = TTS(model_dir="./FlyAIVoice/model/G_latest.pth",
-              config_dir="./FlyAIVoice/finetune_speaker.json")
-    
+def voice_model(tts : TTS, sentence : str):
     # sentence를 generate할 문자로 넣기 전에 전처리(문장 끝나기 전에 공백 2칸 추가)
-    print(f"sentence : {sentence}")
     sentence = sentence.strip()
     text = sentence[:-1] + (sentence[-1] * 3)
-    print(f"text : {text}")
     audio_bytes = tts.generate(text=text)
     return audio_bytes
 
@@ -92,7 +87,7 @@ def preprocessing_sentence(sentence : str):
     return new_sentence
 
 # 한 문장 생성될 때마다 호출
-def on_llm_new_sentence_handler(sentence, task_id : str, client : MongoClient): 
+def on_llm_new_sentence_handler(sentence, task_id : str, client : MongoClient, tts : TTS): 
     print(f"setence compelete! : {sentence}")
 
     task_db = client[DB_NAME]["Task"]
@@ -107,7 +102,7 @@ def on_llm_new_sentence_handler(sentence, task_id : str, client : MongoClient):
     add_answer(task_id=task_id, new_answer=sentence, client=client)
 
     # 생성된 응답을 음성 모델에 보내서 이진 파일로 받아옴
-    binary_audio = voice_model(sentence=sentence)
+    binary_audio = voice_model(tts=tts, sentence=sentence)
     
     # 받아온 이진 파일도 DB(Task)에 저장
     create_new_voice(task_id=task_id, audio=binary_audio, client=client)
@@ -123,7 +118,7 @@ def on_llm_end_handler(result, task_id : str, chatroom_id : str, client : MongoC
 
 # 비동기 함수로 설정
 def start_chatbot(friend_id : str, task_id : str,
-                        client : MongoClient, chatbot : Chatbot): # 
+                  client : MongoClient, chatbot : Chatbot, tts : TTS):
     task_db = client[DB_NAME]["Task"]
     user_db = client[DB_NAME]["User"]
     task = task_db.find_one({"_id" : ObjectId(task_id)})
@@ -144,7 +139,7 @@ def start_chatbot(friend_id : str, task_id : str,
         history.append((message['query'], answer_sentence))
 
     new_sentence_handler = partial(on_llm_new_sentence_handler,
-                                          task_id=task_id, client=client)
+                                          task_id=task_id, client=client, tts=tts)
     end_handler = partial(on_llm_end_handler,
                                  task_id=task_id, chatroom_id=task['chatroom_id'], client = client)
 

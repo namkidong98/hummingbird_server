@@ -19,7 +19,7 @@ async def createTask(request : Request, task: TaskCreate, background_tasks: Back
     # start_chatbot을 백그라운드에서 실행
     background_tasks.add_task(start_chatbot,
                               friend_id=friend_id, task_id=task_id,
-                              client=request.app.client, chatbot=request.app.chatbot) # 
+                              client=request.app.client, chatbot=request.app.chatbot, tts=request.app.tts) # 
     return task_id
 
 # 생성된 task의 id를 지속적으로 보내면서 상태를 확인(Front와 통신)
