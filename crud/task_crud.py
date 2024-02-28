@@ -149,7 +149,7 @@ def start_chatbot(friend_id : str, task_id : str,
         ai_name = ai_name,
         query = task['query'],  # 새로운 Task에서 들어온 발화
         user_id = friend_id,    # 발화에 대답할 친구의 ID
-        relation="서로 반말을 쓸 정도로 사이좋은 딸",
+        relation="우리 딸",
         summary = chatroom['summary'],         # 그동안 나눈 대화의 summary(기존 summary)
         history = history,
         on_llm_new_sentence_handler = new_sentence_handler, # 문장 생성될 때마다 호출되는 함수
