@@ -1,4 +1,4 @@
-# Hummingbird Server
+# Hummingbird
 
 <img width=800 src="https://github.com/namkidong98/hummingbird_server/assets/113520117/d693ae86-a0d7-4e90-b25a-f4a590e28620">
 
