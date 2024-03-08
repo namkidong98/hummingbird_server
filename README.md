@@ -1,26 +1,39 @@
 # Hummingbird Server
+
+<img width=800 src="https://github.com/namkidong98/hummingbird_server/assets/113520117/d693ae86-a0d7-4e90-b25a-f4a590e28620">
+
 - 프로젝트명 : HummingBird    
 - 프로젝트 목표 : Well-Dying을 위해 자신의 페르소나와 목소리를 학습시켜 자신의 죽음 이후 지인들이 자신과 전화하는 것과 같은 경험을 제공해주는 것을 목표로 한다   
 - 프로젝트 기간 : 2024.02.01 ~ 2024.02.28 (1달)
 - 프로젝트 인원 : 김세희, 김종수, 남기동, 송성근, 전윤찬, 황승현
 - 핵심 담당 업무 : Backend, Cloud
 
-![image](https://github.com/namkidong98/hummingbird_server/assets/113520117/d693ae86-a0d7-4e90-b25a-f4a590e28620)
-
 <br>
+
+<img width=800 src="https://github.com/namkidong98/hummingbird_server/assets/113520117/08d3df3d-0eb1-4a7d-b405-23f58c77cdc7">
+
+
+<br><br>
 
 # 백엔드 작업 요약
 1. ChromaDB 연결, MongoDB 연결
 
-2. 응답을 생성하는 채팅 모델을 연결   
-    ChatGPT를 통해 생성되는 답변을 문장 단위로 가져와 DB에 저장하고 프론트 요청에 따라 반환
-3. 음성 모델은 아직 미완이라 연결 X   
-    대신 ChatGPT에서 생성된 문장이 올 때마다 더미 음성을 DB에 저장하고 프론트와 통신되는 것은 확인, 음성 모델만 완성되면 바로 연결 가능할 듯
+2. 채팅 모델을 연결 (Chat-Hummingbird)   
+    LangChain과 ChatGPT로 응답을 생성하는 채팅 모델을 서버에 연결   
+    ChatGPT를 통해 생성되는 답변을 문장 단위로 가져와 DB에 저장하고 프론트 요청에 따라 반환   
+   
+3. 음성 모델을 연결   
+    VITS 모델을 사용한 TTS(Text to Speech) 모델을 서버에 연결   
+    ChatGPT에서 생성된 문장으로 음성을 합성하여 문장 단위의 wav 파일을 binary 형태로 프론트에 전달   
+   
 4. Docker – ChromaDB, FastAPI 분리하고 컨테이너화
+    Docker를 이용하여 DB와 Backend를 분리하고 컨테이너화   
+    서버와 DB를 분리하여 서버에 문제가 생기더라도 DB에 피해가 가지 않도록 독립성을 확보   
+
 5. Azure를 이용한 배포   
     MongoDB는 MongoDB Atlas라는 클라우드 서비스로 작동      
     ChromaDB는 ACI(Azure Container Instance)를 이용해 Docker 이미지를 올려서 배포   
-    FastAPI는 GPU 리소스를 사용해야 하므로 Azure 구독 업그레이드 고려 중
+    FastAPI는 GPU 리소스를 사용해야 하므로 Azure 구독 업그레이드가 필요하여 로컬에서 열어서 사용   
 
 <br>
 
@@ -28,7 +41,8 @@
 
 ### Pymongo
 
-- Pymongo는 
+- Pymongo는 MongoDB와 상호작용하기 위한 Python 라이브러리이다
+
 https://wooiljeong.github.io/python/mongodb-01/      
 https://www.youtube.com/watch?v=GJCKIGeK3qc&t=337s   
 
