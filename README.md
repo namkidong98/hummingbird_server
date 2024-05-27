@@ -1,4 +1,5 @@
 # Hummingbird
+- SKT Fly AI 4기에서'ESG를 담은 AI 서비스 개발'을 주제로 4주간 진행한 프로젝트
 
 <img width=800 src="https://github.com/namkidong98/hummingbird_server/assets/113520117/d693ae86-a0d7-4e90-b25a-f4a590e28620">
 
@@ -10,6 +11,13 @@
 
 <br>
 
+## 시연영상
+https://github.com/namkidong98/hummingbird_server/assets/113520117/cb4c3fdf-3b74-4eaa-849a-681873a9a0b5
+
+
+<br>
+
+## Pipeline
 <img width=800 src="https://github.com/namkidong98/hummingbird_server/assets/113520117/08d3df3d-0eb1-4a7d-b405-23f58c77cdc7">
 
 
